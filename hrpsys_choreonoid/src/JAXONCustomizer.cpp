@@ -94,6 +94,8 @@ static const char** getTargetModelNames()
     "JAXON_JVRC",
     "JAXON_BLUE",
     "CHIDORI",
+    "HRP2JSK",
+    "HRP2JSKNTS",
     rname,
     0 };
 
