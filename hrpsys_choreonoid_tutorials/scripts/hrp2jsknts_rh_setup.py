@@ -53,7 +53,7 @@ class HRP2JSKNTS_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
         # Latter four 0.0 are for hands.
         self.ic_svc.startImpedanceController("larm")
         self.ic_svc.startImpedanceController("rarm")
-        #self.startStabilizer()
+        self.startStabilizer()
 
 if __name__ == '__main__':
     hcf = HRP2JSKNTS_HrpsysConfigurator("HRP2JSKNTS")
