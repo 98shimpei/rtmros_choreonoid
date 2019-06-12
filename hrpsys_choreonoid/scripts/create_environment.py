@@ -211,6 +211,10 @@ def addRobotItem(world, obj_conf, filename, objname):
         simulator = AISTSimulatorItem()
         world.addChildItem(simulator)
         itemTreeView.checkItem(simulator)
+    # simulator.setDynamicsMode(AISTSimulatorItem.DynamicsMode.FORWARD_DYNAMICS)
+    # simulator.setAllLinkPositionOutputMode(False)
+    # simulator.setContactCullingDepth(0.03)
+    # simulator.setTimeRangeMode(AISTSimulatorItem.TimeRangeMode.TIMEBAR)
 
     if vision_conf:
         vsim = GLVisionSimulatorItem()
