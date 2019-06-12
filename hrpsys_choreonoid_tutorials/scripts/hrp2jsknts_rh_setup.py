@@ -51,8 +51,10 @@ class HRP2JSKNTS_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
         self.startAutoBalancer()
         # Suppress limit over message and behave like real robot that always angle-vector is in seq.
         # Latter four 0.0 are for hands.
-        self.ic_svc.startImpedanceController("larm")
-        self.ic_svc.startImpedanceController("rarm")
+        self.ic_svc.startImpedanceControllerNoWait("rarm")
+        self.ic_svc.startImpedanceControllerNoWait("larm")
+        self.ic_svc.waitImpedanceControllerTransition("rarm")
+        self.ic_svc.waitImpedanceControllerTransition("larm")
         self.startStabilizer()
 
 if __name__ == '__main__':
