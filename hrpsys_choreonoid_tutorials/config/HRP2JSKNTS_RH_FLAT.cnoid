@@ -19,7 +19,7 @@ items:
           plugin: Body
           class: BodyItem
           data: 
-            modelFile: "/home/hiraoka/hiraoka_ws/choreonoid3_ws/src/rtm-ros-robotics/rtmros_hrp2/hrp2_models/HRP2JSKNTS_for_OpenHRP3/HRP2JSKNTSmain_bush.wrl"
+            modelFile: "/home/hiraoka/hiraoka_ws/choreonoid3_ws/src/rtm-ros-robotics/rtmros_hrp2/hrp2_models/HRP2JSKNTS_WITH_3HAND/HRP2JSKNTSmain_bush.wrl"
             currentBaseLink: "WAIST"
             rootPosition: [ 0.0, 0.0, 0.0650 ]
             rootAttitude: [ 
@@ -30,8 +30,10 @@ items:
                0.0, 0.0, -0.353786, 0.872665, -0.518879, 0.0, 0.0,
                0.0, 0.0, -0.353786, 0.872665, -0.518879, 0.0, 0.0,
                0.0, 0.0, 0.0, 0.0,
-               0.174533, -0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, 0.261799
-               0.174533, 0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, -0.261799]
+               0.174533, -0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, 0.261799,
+               0.174533, 0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, -0.261799,
+               0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+               0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             initialRootPosition: [ 0.0, 0.0, 0.650 ]
             initialRootAttitude: [ 
               1, 0, 0, 
@@ -42,7 +44,9 @@ items:
                0.0, 0.0, -0.353786, 0.872665, -0.518879, 0.0, 0.0,
                0.0, 0.0, 0.0, 0.0,
                0.174533, -0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, 0.261799,
-               0.174533, 0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, -0.261799]
+               0.174533, 0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, -0.261799,
+               0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+               0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             zmp: [ 0, 0, 0 ]
             collisionDetection: true
             selfCollisionDetection: false
