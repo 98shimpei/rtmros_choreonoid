@@ -191,6 +191,8 @@ def addRobotItem(world, obj_conf, filename, objname):
 
     if body_rtc_conf:
         for conf in body_rtc_conf:
+            if 'name' in conf:
+                robotItem.setName(conf['name']) ## rename
             bodyRTC = BodyRTCItem()
             if 'module' in conf:
                 bodyRTC.setControllerModule(parse_filename(conf['module']))
