@@ -177,8 +177,10 @@ def addRobotItem(world, obj_conf, filename, objname):
 
     robot.calcForwardKinematics()
     robotItem.storeInitialState()
-    if body_rtc_conf and 'name' in body_rtc_conf:
-        robotItem.setName(body_rtc_conf['name']) ## add name for BodyRTC name
+    if body_rtc_conf and type(body_rtc_conf) is dict:
+        body_rtc_conf = [body_rtc_conf]
+    if body_rtc_conf and 'name' in body_rtc_conf[0]:
+        robotItem.setName(body_rtc_conf[0]['name']) ## add name for BodyRTC name
     else:
         robotItem.setName(objname)
     if callable(world.childItem):
@@ -188,22 +190,23 @@ def addRobotItem(world, obj_conf, filename, objname):
     itemTreeView.checkItem(robotItem)
 
     if body_rtc_conf:
-        bodyRTC = BodyRTCItem()
-        if 'module' in body_rtc_conf:
-            bodyRTC.setControllerModule(parse_filename(body_rtc_conf['module']))
-        if 'config' in body_rtc_conf:
-            bodyRTC.setConfigMode(BodyRTCItem.ConfigMode.FILE)
-            bodyRTC.setConfigFile(parse_filename(body_rtc_conf['config']))
-            bodyRTC.setAutoConnectionMode(False)
-        if 'rate' in body_rtc_conf:
-            bodyRTC.setPeriodicRate(body_rtc_conf['rate'])
+        for conf in body_rtc_conf:
+            bodyRTC = BodyRTCItem()
+            if 'module' in conf:
+                bodyRTC.setControllerModule(parse_filename(conf['module']))
+            if 'config' in conf:
+                bodyRTC.setConfigMode(BodyRTCItem.ConfigMode.FILE)
+                bodyRTC.setConfigFile(parse_filename(conf['config']))
+                bodyRTC.setAutoConnectionMode(False)
+            if 'rate' in conf:
+                bodyRTC.setPeriodicRate(conf['rate'])
 
-        #add bodyRTC
-        robotItem.addChildItem(bodyRTC)
-        #check
-        ##itemTreeView.checkItem(bodyRTC)
+            #add bodyRTC
+            robotItem.addChildItem(bodyRTC)
+            #check
+            ##itemTreeView.checkItem(bodyRTC)
 
-        if 'name' in body_rtc_conf:
+        if 'name' in body_rtc_conf[0]:
             robotItem.setName(objname) ## rename
 
     simulator = world.findItem("AISTSimulator")

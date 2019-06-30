@@ -2,35 +2,28 @@
 HRP2JSKNTS:
   name: 'HRP2JSKNTS'
   type: 'robot'
-  file: '$(find hrp2_models)/HRP2JSKNTS_for_OpenHRP3/HRP2JSKNTSmain_bush.wrl'
-  translation: [0, 0, 0.8]
+  file: '$(find hrp2_models)/HRP2JSKNTS_WITH_3HAND/HRP2JSKNTSmain_bush.wrl'
+  translation: [0, 0, 0.65]
   rotation: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
   joint_angles: [0.0, 0.0, -0.453786, 0.872665, -0.418879, 0.0, 0.0,
                  0.0, 0.0, -0.453786, 0.872665, -0.418879, 0.0, 0.0,
                  0.0, 0.0, 0.0, 0.0,
                  0.174533, -0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, 0.261799,
-                 0.174533, 0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, -0.261799]
+                 0.174533, 0.174533, 0.0, -0.436332, 0.0, 0.0, -0.174533, -0.261799,
+                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   body_rtc:
-    name: 'HRP2JSKNTS(Robot)0'
-    module: '$(find hrpsys_choreonoid)/PDcontroller.so'
-    config: '$(find hrpsys_choreonoid_tutorials)/config/BodyRTC_HRP2JSKNTS.RH.conf'
-    rate: 500
+    - name: 'HRP2JSKNTS(Robot)0'
+      module: '$(find hrpsys_choreonoid)/lib/RobotHardware_choreonoid.so'
+      config: '$(find hrpsys_choreonoid_tutorials)/config/BodyRTC_HRP2JSKNTS.RH.conf'
+      rate: 250
+    - name: 'HRP3HAND(Robot)0'
+      module: '$(find hrpsys_choreonoid)/lib/HRP3HandController_choreonoid.so'
+      config: '$(find hrpsys_choreonoid_tutorials)/config/BodyRTC_HRP2JSKNTS.HC.conf'
+      rate: 250
   # vision:
   #   body: 'JAXON_RED'
   #   namelist: 'HEAD_LEFT_CAMERA, HEAD_RIGHT_CAMERA, HEAD_RANGE'
-FIXED_CAMERA:
-  name: 'FIXED_CAMERA'
-  type: 'robot'
-  file: '$(find jvrc_models)/models/fixed_camera.wrl'
-  translation: [3.0, -1.2, 2.0]
-  rotation: [[0.372026, -0.464443, 0.803672], [0.921061, 0.077365, -0.381656], [0.115081, 0.882217, 0.456562]]
-  body_rtc:
-    name: 'FIXED_CAMERA(Robot)0'
-    config: '$(find hrpsys_choreonoid_tutorials)/config/FIXED_CAMERA.conf'
-    rate: 500
-  vision:
-    body: 'FIXED_CAMERA'
-    namelist: 'CAMERA'
 obj2:
   name: 'VIS_FLOOR'
   file: '$(find jvrc_models)/models/visible_floor.wrl'

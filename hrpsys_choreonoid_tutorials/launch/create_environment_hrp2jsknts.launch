@@ -65,6 +65,16 @@
     <arg name="CONF_FILE"      value="$(arg CONF_FILE)" />
   </include>
 
+  <!-- BEGIN:openrtm setting -->
+  <arg name="nameserver" default="localhost" />
+  <arg name="corbaport" default="15005" />
+  <arg name="managerport" default="2810" />
+  <node name="rtmlaunch_hrpsys_ros_bridge2" pkg="openrtm_tools" type="rtmlaunch.py" args="$(find hrpsys_choreonoid_tutorials)/launch/create_environment_hrp2jsknts.launch" output="screen"/>
+  <node pkg="jsk_hrp2_ros_bridge" name="HRP3HandControllerServiceROSBridge" type="HRP3HandControllerServiceROSBridgeComp"
+        output="screen" args='-o "corba.nameservers:$(arg nameserver):15005" -o "naming.formats:%n.rtc" -o "exec_cxt.periodic.type:PeriodicExecutionContext" -o "exec_cxt.periodic.rate:2000" -o "logger.file_name:/tmp/rtc%p.log"' />
+  <rtconnect from="HRP3HandControllerServiceROSBridge.rtc:HRP3HandControllerService" to="HRP3HandController_choreonoid0.rtc:HRP3HandControllerService" subscription_type="new"/>
+  <rtactivate component="HRP3HandControllerServiceROSBridge.rtc" />
+
   <!--                     -->
   <!-- additional settings -->
   <!--                     -->
