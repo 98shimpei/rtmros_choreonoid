@@ -65,8 +65,21 @@ items:
                 AutoConnect: false
                 InstanceName: HRP2JSKNTS(Robot)0
                 bodyPeriodicRate: 0.004
+            - 
+              id: 4
+              name: "BodyRTC_hand"
+              plugin: OpenRTM
+              class: BodyRTCItem
+              data: 
+                isImmediateMode: true
+                moduleName: "/home/hiraoka/hiraoka_ws/choreonoid3_ws/src/rtm-ros-robotics/rtmros_choreonoid/hrpsys_choreonoid/lib/HRP3HandController_choreonoid"
+                confFileName: "/home/hiraoka/hiraoka_ws/choreonoid3_ws/src/rtm-ros-robotics/rtmros_choreonoid/hrpsys_choreonoid_tutorials/config/BodyRTC_HRP2JSKNTS.HC.conf"
+                configurationMode: Use Configuration File
+                AutoConnect: false
+                InstanceName: HRP3HAND(Robot)0
+                bodyPeriodicRate: 0.004
         - 
-          id: 4
+          id: 5
           name: "floor"
           plugin: Body
           class: BodyItem
@@ -90,7 +103,7 @@ items:
             selfCollisionDetection: false
             isEditable: true
         - 
-          id: 5
+          id: 6
           name: "AISTSimulator"
           plugin: Body
           class: AISTSimulatorItem

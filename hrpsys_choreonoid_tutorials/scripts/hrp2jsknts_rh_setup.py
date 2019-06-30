@@ -3,6 +3,15 @@
 from hrpsys_choreonoid_tutorials.choreonoid_hrpsys_config_hrp2 import *
 
 class HRP2JSKNTS_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
+    hc = None
+    hc_svc = None
+
+    def connectComps(self):
+        ChoreonoidHrpsysConfigurator.connectComps(self)
+        if self.rh.port("servoState") != None:
+            if self.hc:
+                connectPorts(self.rh.port("servoState"), self.hc.port("servoStateIn"))
+
     def getRTCList (self):
         ##return self.getRTCListUnstable()
         return [
@@ -27,6 +36,64 @@ class HRP2JSKNTS_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
             ['el', "SoftErrorLimiter"],
             ['log', "DataLogger"]
             ]
+
+    def getRTCInstanceList(self, verbose=True):
+        '''!@brief
+        Get list of RTC Instance
+        '''
+        ret = [self.rh, self.hc]
+        for rtc in self.getRTCList():
+            r = 'self.'+rtc[0]
+            try:
+                if eval(r): 
+                    ret.append(eval(r))
+                else:
+                    if verbose:
+                        print(self.configurator_name + '\033[31mFail to find instance ('+str(rtc)+') for getRTCInstanceList\033[0m')
+            except Exception:
+                _, e, _ = sys.exc_info()
+                print(self.configurator_name + '\033[31mFail to getRTCInstanceList'+str(e)+'\033[0m')
+        return ret
+
+    def waitForHRP3HandController(self, robotname="Robot"):
+        '''!@brief
+        Wait for RobotHardware is exists and activated.
+
+        @param robotname str: name of RobotHardware component.
+        '''
+        self.hc = None
+        timeout_count = 0
+        # wait for simulator or RobotHardware setup which sometime takes a long time
+        while self.hc == None and timeout_count < 10:  # <- time out limit
+            if timeout_count > 0: # do not sleep initial loop
+                time.sleep(1);
+            self.hc = rtm.findRTC("hc")
+            if not self.hc:
+                self.hc = rtm.findRTC("HRP3HandController_choreonoid0")
+            print(self.configurator_name + "wait for %s : %s ( timeout %d < 10)" % ( "HRP3HandController_choreonoid0", self.hc, timeout_count))
+            if self.hc and self.hc.isActive() == None:  # just in case rh is not ready...
+                self.hc = None
+            timeout_count += 1
+        if not self.hc:
+            print(self.configurator_name + "Could not find " + "HRP3HandController_choreonoid0")
+            if self.ms:
+                print(self.configurator_name + "Candidates are .... " + str([x.name()  for x in self.ms.get_components()]))
+            print(self.configurator_name + "Exitting.... " + "HRP3HandController_choreonoid0")
+            exit(1)
+
+        print(self.configurator_name + "findComps -> %s : %s isActive? = %s " % (self.hc.name(), self.hc,  self.hc.isActive()))
+
+    def waitForRTCManagerAndRobotHardware(self, robotname="Robot", managerhost=nshost):
+        '''!@brief
+        Wait for both RTC Manager (waitForRTCManager()) and RobotHardware (waitForRobotHardware())
+
+        @param managerhost str: name of host computer that manager is running
+        @param robotname str: name of RobotHardware component.
+        '''
+        self.waitForRTCManager(managerhost)
+        self.waitForRobotHardware(robotname)
+        self.waitForHRP3HandController()
+        self.checkSimulationMode()
 
     # def defJointGroups (self):
     #     rarm_group = ['rarm', ['RARM_JOINT0', 'RARM_JOINT1', 'RARM_JOINT2', 'RARM_JOINT3', 'RARM_JOINT4', 'RARM_JOINT5', 'RARM_JOINT6', 'RARM_JOINT7']]
