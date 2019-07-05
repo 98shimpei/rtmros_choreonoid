@@ -28,7 +28,7 @@ class HRP2JSKNTS_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
             ['st', "Stabilizer"],
             ['co', "CollisionDetector"],
             # ['tc', "TorqueController"],
-            # ['te', "ThermoEstimator"],
+            ['te', "ThermoEstimator"],
             # ['tl', "ThermoLimiter"],
             ['rfu', "ReferenceForceUpdater"],
             ['octd', "ObjectContactTurnaroundDetector"],
