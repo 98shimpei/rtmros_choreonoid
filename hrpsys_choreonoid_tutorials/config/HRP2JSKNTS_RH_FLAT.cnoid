@@ -64,7 +64,7 @@ items:
                 configurationMode: Use Configuration File
                 AutoConnect: false
                 InstanceName: HRP2JSKNTS(Robot)0
-                bodyPeriodicRate: 0.004
+                bodyPeriodicRate: 0.01
             - 
               id: 4
               name: "BodyRTC_hand"
@@ -77,7 +77,7 @@ items:
                 configurationMode: Use Configuration File
                 AutoConnect: false
                 InstanceName: HRP3HAND(Robot)0
-                bodyPeriodicRate: 0.004
+                bodyPeriodicRate: 0.01
         - 
           id: 5
           name: "floor"
