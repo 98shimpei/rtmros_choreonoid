@@ -23,17 +23,18 @@ class HRP2JSKNTS_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
             ['vs', "VirtualForceSensor"],
             ['rmfo', "RemoveForceSensorLinkOffset"],
             ['es', "EmergencyStopper"],
-            ['ic', "ImpedanceController"],
+            #['ic', "ImpedanceController"],
             ['abc', "AutoBalancer"],
             ['st', "Stabilizer"],
             ['co', "CollisionDetector"],
             # ['tc', "TorqueController"],
             ['te', "ThermoEstimator"],
-            # ['tl', "ThermoLimiter"],
-            ['rfu', "ReferenceForceUpdater"],
-            ['octd', "ObjectContactTurnaroundDetector"],
+            ['tl', "ThermoLimiter"],
+            #['rfu', "ReferenceForceUpdater"],
+            #['octd', "ObjectContactTurnaroundDetector"],
             ['hes', "EmergencyStopper"],
             ['el', "SoftErrorLimiter"],
+            ['bp', "Beeper"],
             ['log', "DataLogger"]
             ]
 
@@ -110,19 +111,21 @@ class HRP2JSKNTS_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
         self.el_svc.setServoErrorLimit("LARM_JOINT7", sys.float_info.max)
         self.rh_svc.servo("RARM_JOINT7",OpenHRP.RobotHardwareService.SWITCH_OFF)
         self.rh_svc.servo("LARM_JOINT7",OpenHRP.RobotHardwareService.SWITCH_OFF)
+        self.rh_svc.setServoGainPercentage("ALL", 100.0)
         self.rh_svc.setServoGainPercentage("RLEG_JOINT6", 30.0)
         self.rh_svc.setServoGainPercentage("LLEG_JOINT6", 30.0)
-        self.seq_svc.setJointAngles(self.hrp2ResetPose(), 1.0)
-        self.seq_svc.waitInterpolation()
+
+        self.seq_svc.setJointAnglesSequenceFull([self.hrp2ResetPose()], [], [[0]*len(self.hrp2ResetManipPose())], [[0]*3], [[0]*3], [[0]*3], [[0]*3], [[0]*6*4], [[1.0]*2 + [0]*6 + [0]*8], [1.0])
+        #self.seq_svc.waitInterpolation()
         ###
-        self.startAutoBalancer()
+        #self.startAutoBalancer()
         # Suppress limit over message and behave like real robot that always angle-vector is in seq.
         # Latter four 0.0 are for hands.
-        self.ic_svc.startImpedanceControllerNoWait("rarm")
-        self.ic_svc.startImpedanceControllerNoWait("larm")
-        self.ic_svc.waitImpedanceControllerTransition("rarm")
-        self.ic_svc.waitImpedanceControllerTransition("larm")
-        self.startStabilizer()
+        #self.ic_svc.startImpedanceControllerNoWait("rarm")
+        #self.ic_svc.startImpedanceControllerNoWait("larm")
+        #self.ic_svc.waitImpedanceControllerTransition("rarm")
+        #self.ic_svc.waitImpedanceControllerTransition("larm")
+        #self.startStabilizer()
 
 if __name__ == '__main__':
     hcf = HRP2JSKNTS_HrpsysConfigurator("HRP2JSKNTS")

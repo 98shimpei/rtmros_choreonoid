@@ -77,6 +77,11 @@
     <arg name="MODEL_FILE"     value="$(arg MODEL_FILE)" />
     <arg name="COLLADA_FILE"   value="$(arg COLLADA_FILE)"/>
     <arg name="CONF_FILE"      value="$(arg CONF_FILE)" />
+    <arg name="USE_SOFTERRORLIMIT" value="true"/>
+    <arg name="USE_VIRTUALFORCESENSOR" value="true"/>
+    <arg name="USE_REFERENCEFORCEUPDATER" value="false" />
+    <arg name="USE_OBJECTCONTACTTURNAROUNDDETECTOR" value="false" />
+    <arg name="USE_IMPEDANCECONTROLLER" value="false"/>
   </include>
 
   <!-- BEGIN:openrtm setting -->
