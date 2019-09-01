@@ -19,7 +19,7 @@ items:
           plugin: Body
           class: BodyItem
           data: 
-            modelFile: "/home/hiraoka/hiraoka_ws/catkin_ws/src/rtm-ros-robotics/rtmros_hrp2/hrp2_models/HRP2JSKNTS_WITH_3HAND/HRP2JSKNTSmain_bush.wrl"
+            modelFile: "/home/hiraoka/hiraoka_ws/catkin_ws/src/rtm-ros-robotics/rtmros_hrp2/hrp2_models/HRP2JSKNTS_WITH_3HAND/HRP2JSKNTSmain.wrl"
             currentBaseLink: "WAIST"
             rootPosition: [ 0.0, 0.0, 0.0650 ]
             rootAttitude: [ 
