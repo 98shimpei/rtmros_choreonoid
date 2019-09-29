@@ -85,14 +85,27 @@
   </include>
 
   <!-- BEGIN:openrtm setting -->
+  <env name="LANG" value="C" />
+  <env name="ORBgiopMaxMsgSize" value="2147483648" />
+  <env name="SIMULATOR_NAME" value="$(arg SIMULATOR_NAME)" />
   <arg name="nameserver" default="localhost" />
   <arg name="corbaport" default="15005" />
   <arg name="managerport" default="2810" />
+  <env name="RTCTREE_NAMESERVERS" value="$(arg nameserver):$(arg corbaport)" />
+  <env name="RTC_CONNECTION_CHECK_ONCE" value="true" />
+
   <node name="rtmlaunch_hrpsys_ros_bridge2" pkg="openrtm_tools" type="rtmlaunch.py" args="$(find hrpsys_choreonoid_tutorials)/launch/hrp2jsknts_choreonoid.launch" output="screen"/>
+
   <node pkg="jsk_hrp2_ros_bridge" name="HRP3HandControllerServiceROSBridge" type="HRP3HandControllerServiceROSBridgeComp"
         output="screen" args='-o "corba.nameservers:$(arg nameserver):15005" -o "naming.formats:%n.rtc" -o "exec_cxt.periodic.type:PeriodicExecutionContext" -o "exec_cxt.periodic.rate:2000" -o "logger.file_name:/tmp/rtc%p.log"' />
   <rtconnect from="HRP3HandControllerServiceROSBridge.rtc:HRP3HandControllerService" to="HRP3HandController_choreonoid0.rtc:HRP3HandControllerService" subscription_type="new"/>
   <rtactivate component="HRP3HandControllerServiceROSBridge.rtc" />
+
+  <node pkg="hrpsys" name="RemoteStabilizerComp" type="RemoteStabilizerComp"
+        output="screen" args='-o "corba.master_manager:$(arg nameserver):$(arg managerport)" -o "corba.nameservers:$(arg nameserver):$(arg corbaport)" -o "exec_cxt.periodic.type:PeriodicExecutionContext" -o "exec_cxt.periodic.rate:250" -o "logger.file_name:/tmp/rtc%p.log" -o "naming.formats:rs.rtc" -o example.RemoteStabilizer.config_file:$(arg CONF_FILE)' />
+  <rtconnect from="st.rtc:StabilizerServiceClient" to="rs.rtc:StabilizerService" subscription_type="new"/>
+  <rtactivate component="rs.rtc" />
+
 
   <!--                     -->
   <!-- additional settings -->
