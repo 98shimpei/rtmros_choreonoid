@@ -12,7 +12,7 @@
   <arg name="USE_VISION" default="false" /><!--TODO-->
   <arg name="GUI" default="true" />
   <arg name="hrpsys_precreate_rtc" default=""/>
-  <arg name="LAUNCH_FOOTCOORDS" default="false" /><!--TODO-->
+  <arg name="LAUNCH_FOOTCOORDS" default="true" /><!--TODO-->
 
   <!-- robot dependant settings -->
   <arg if="$(arg USE_ROBOTHARDWARE)"
