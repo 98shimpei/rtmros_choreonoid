@@ -138,7 +138,7 @@ items:
           data: 
             modelFile: "${SHARE}/WRS2018/model/ConcreteBox.body"
             currentBaseLink: "Base"
-            rootPosition: [ 1.2, 0.0, 0.15 ]
+            rootPosition: [ 1.2, 0.0, 0.10 ]
             rootAttitude: [ 
               0, 0, 1, 
               0, 1, 0, 
