@@ -27,6 +27,14 @@ else()
   set (JSK_MODELS_DIR ${jsk_models_SOURCE_PREFIX})
 endif()
 
+find_package(hrp2_models QUIET)
+if(NOT "${hrp2_models_FOUND}")
+  string(ASCII 27 Esc)
+  message(WARNING "${Esc}[1;33mPackage hrp2_models is not found, if you have right to access them please include source code in catkin workspace${Esc}[m")
+else()
+  set (HRP2_MODELS_DIR ${hrp2_models_SOURCE_PREFIX})
+endif()
+
 ################################
 ## compile_openhrp_model
 ##  Generate OpenHRP3 .xml and .conf file.
@@ -163,6 +171,14 @@ set(JVRC_RTC_DIRECTORY ${hrpsys_choreonoid_SOURCE_PREFIX})
 set(JVRC_CONF_DIRECTORY ${PROJECT_SOURCE_DIR}/config)
 
 ###
+#SampleRobot conid
+###
+if (${hrp2_models_FOUND})
+configure_file(${PROJECT_SOURCE_DIR}/config/SampleRobot_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/SampleRobot_LOAD_OBJ.cnoid @ONLY)
+endif()
+configure_file(${PROJECT_SOURCE_DIR}/launch/samplerobot_choreonoid.launch.in ${PROJECT_SOURCE_DIR}/launch/samplerobot_choreonoid.launch @ONLY) #OPENHRP_SAMPLE_DIR is difficult to find in roslaunch api
+
+###
 #JAXON_RED conid
 ###
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_FLAT.cnoid @ONLY)
@@ -187,6 +203,27 @@ endif()
 ###
 if (${jsk_models_FOUND})
 configure_file(${PROJECT_SOURCE_DIR}/config/CHIDORI_RH_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/CHIDORI_RH_FLAT.cnoid @ONLY)
+endif()
+
+###
+#HRP2JSK conid
+###
+if (${hrp2_models_FOUND})
+configure_file(${PROJECT_SOURCE_DIR}/config/HRP2JSK_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/HRP2JSK_LOAD_OBJ.cnoid @ONLY)
+endif()
+
+###
+#HRP2JSKNT conid
+###
+if (${hrp2_models_FOUND})
+configure_file(${PROJECT_SOURCE_DIR}/config/HRP2JSKNT_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/HRP2JSKNT_LOAD_OBJ.cnoid @ONLY)
+endif()
+
+###
+#HRP2JSKNTS conid
+###
+if (${hrp2_models_FOUND})
+configure_file(${PROJECT_SOURCE_DIR}/config/HRP2JSKNTS_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/HRP2JSKNTS_LOAD_OBJ.cnoid @ONLY)
 endif()
 
 ###
