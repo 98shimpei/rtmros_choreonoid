@@ -43,9 +43,20 @@
     <param name="publish_depth" value="true" />
     <param name="transformed_camera_frame" value="true" />
     <remap from="depth" to="image_raw"/>
+    <remap from="points" to="points_org"/>
     <rtconnect from="HRP2JSKNTS(Robot)0.rtc:HEAD_DEPTH"
                to="PointCloudROSBridge0.rtc:points" />
     <rtactivate component="PointCloudROSBridge0.rtc" />
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="pointcloud_bridge_points_passthrough" args="standalone pcl/PassThrough" ns="camera_remote/depth_registered">
+    <remap from="~input" to="points_org"/>
+    <remap from="~output" to="points"/>
+    <rosparam>
+      filter_field_name: z
+      filter_limit_min: 0.5 # depth camera cannot see too close area. `frontClipDistance` cannot be used for this purpose because camera sees through within `frontClipDistance`.
+      filter_limit_max: 10.0
+    </rosparam>
   </node>
 
   <node pkg="hrpsys_choreonoid" name="ground_truth_bridge"
