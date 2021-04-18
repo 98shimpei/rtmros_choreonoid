@@ -57,7 +57,6 @@ class JSKHRP2ChoreonoidHrpsysConfigurator(JSKHRP2HrpsysConfigurator):
         self.rh = stash_rh
 
     def startABSTIMP (self):
-        ### not used on hrpsys
         if self.ROBOT_NAME == "HRP2JSKNT" or self.ROBOT_NAME == "HRP2JSKNTS":
             self.el_svc.setServoErrorLimit("RARM_JOINT7", sys.float_info.max)
             self.el_svc.setServoErrorLimit("LARM_JOINT7", sys.float_info.max)
@@ -65,8 +64,15 @@ class JSKHRP2ChoreonoidHrpsysConfigurator(JSKHRP2HrpsysConfigurator):
             self.rh_svc.servo("LARM_JOINT7",OpenHRP.RobotHardwareService.SWITCH_OFF)
             self.rh_svc.setServoGainPercentage("RLEG_JOINT6", 30.0)
             self.rh_svc.setServoGainPercentage("LLEG_JOINT6", 30.0)
-        ###
+            for j in dict(self.Groups)["rhand"] + dict(self.Groups)["lhand"]:
+                self.el_svc.setServoErrorLimit(j, sys.float_info.max)
+                self.rh_svc.setServoErrorLimit(j, 0.0)
+
         self.startAutoBalancer()
+        self.seq_svc.setJointAngles(self.hrp2ResetPose(), 1.0)
+        if self.ROBOT_NAME == "HRP2JSKNT" or self.ROBOT_NAME == "HRP2JSKNTS":
+            self.seq_svc.setJointAnglesOfGroup("rhand", [0, 0, 0, 0, 0, 0], 1.0)
+            self.seq_svc.setJointAnglesOfGroup("lhand", [0, 0, 0, 0, 0, 0], 1.0)
         self.ic_svc.startImpedanceController("larm")
         self.ic_svc.startImpedanceController("rarm")
         self.startStabilizer()
