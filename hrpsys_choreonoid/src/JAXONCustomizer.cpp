@@ -194,18 +194,24 @@ static BodyCustomizerHandle create(BodyHandle bodyHandle, const char* modelName)
     if (ifs.is_open()) {
       std::cerr << "[JAXONCustomizer] Config file is: " << config_file_path << std::endl;
       YAML::Node param = YAML::LoadFile(config_file_path);
-      customizer->springT  = param["bush"]["springT"].as<double>();
-      customizer->dampingT = param["bush"]["dampingT"].as<double>();
-      customizer->springR  = param["bush"]["springR"].as<double>();
-      customizer->dampingR = param["bush"]["dampingR"].as<double>();
-      customizer->arm_springT  = param["armbush"]["springT"].as<double>();
-      customizer->arm_dampingT = param["armbush"]["dampingT"].as<double>();
-      customizer->arm_springR  = param["armbush"]["springR"].as<double>();
-      customizer->arm_dampingR = param["armbush"]["dampingR"].as<double>();
-      customizer->tilt_upper_bound    = param["tilt_laser"]["TILT_UPPER_BOUND"].as<double>();
-      customizer->tilt_positive_speed = param["tilt_laser"]["TILT_POSITIVE_SPEED"].as<double>();
-      customizer->tilt_lower_bound    = param["tilt_laser"]["TILT_LOWER_BOUND"].as<double>();
-      customizer->tilt_negative_speed = param["tilt_laser"]["TILT_NEGATIVE_SPEED"].as<double>();
+      if (param["bush"]) {
+        if (param["bush"]["springT"]) customizer->springT  = customizer->arm_springT = param["bush"]["springT"].as<double>();
+        if (param["bush"]["dampingT"]) customizer->dampingT = customizer->arm_dampingT = param["bush"]["dampingT"].as<double>();
+        if (param["bush"]["springR"]) customizer->springR  = customizer->arm_springR = param["bush"]["springR"].as<double>();
+        if (param["bush"]["dampingR"]) customizer->dampingR = customizer->arm_dampingR = param["bush"]["dampingR"].as<double>();
+      }
+      if (param["armbush"]) {
+        if (param["armbush"]["springT"]) customizer->arm_springT  = param["armbush"]["springT"].as<double>();
+        if (param["armbush"]["dampingT"]) customizer->arm_dampingT = param["armbush"]["dampingT"].as<double>();
+        if (param["armbush"]["springR"]) customizer->arm_springR  = param["armbush"]["springR"].as<double>();
+        if (param["armbush"]["dampingR"]) customizer->arm_dampingR = param["armbush"]["dampingR"].as<double>();
+      }
+      if (param["tilt_laser"]) {
+        if (param["tilt_laser"]["TILT_UPPER_BOUND"]) customizer->tilt_upper_bound = param["tilt_laser"]["TILT_UPPER_BOUND"].as<double>();
+        if (param["tilt_laser"]["TILT_POSITIVE_SPEED"]) customizer->tilt_positive_speed = param["tilt_laser"]["TILT_POSITIVE_SPEED"].as<double>();
+        if (param["tilt_laser"]["TILT_LOWER_BOUND"]) customizer->tilt_lower_bound = param["tilt_laser"]["TILT_LOWER_BOUND"].as<double>();
+        if (param["tilt_laser"]["TILT_NEGATIVE_SPEED"]) customizer->tilt_negative_speed = param["tilt_laser"]["TILT_NEGATIVE_SPEED"].as<double>();
+      }
     } else {
       std::cerr << "[JAXONCustomizer] " << config_file_path << " is not found" << std::endl;
     }
