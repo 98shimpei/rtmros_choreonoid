@@ -2,6 +2,12 @@
   <arg name="ENVIRONMENT_YAML" default="$(find hrpsys_choreonoid_tutorials)/config/flat_no_texture.yaml" /> <!-- simulating cameras with a textured ground takes much computational time -->
   <arg name="PROJECT_FILE" default=""/>
   <arg name="LAUNCH_FOOTCOORDS" default="true" />
+  <group if="$(arg LAUNCH_FOOTCOORDS)">
+    <rosparam>
+      footcoords:
+          invert_odom_init: false
+    </rosparam>
+  </group>
 
   <include file="$(find hrpsys_choreonoid_tutorials)/launch/robot_choreonoid.launch" >
     <arg name="USE_VISION"           value="true" />
