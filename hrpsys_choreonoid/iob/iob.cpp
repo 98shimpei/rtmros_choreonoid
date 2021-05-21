@@ -68,26 +68,15 @@ static OutPort<TimedDoubleSeq> *op_torqueOut;
 //* *//
 static TimedDoubleSeq m_qvel_sim;
 static TimedDoubleSeq m_torque_sim;
-static TimedDoubleSeq m_rfsensor_sim;
-static TimedDoubleSeq m_lfsensor_sim;
-static TimedDoubleSeq m_rhsensor_sim;
-static TimedDoubleSeq m_lhsensor_sim;
+static std::vector<TimedDoubleSeq> m_forcesensor_sim;
 static TimedAcceleration3D m_gsensor_sim;
 static TimedAngularVelocity3D m_gyrometer_sim;
 
 static InPort<TimedDoubleSeq> *ip_qvel_sim;
 static InPort<TimedDoubleSeq> *ip_torque_sim;
-static InPort<TimedDoubleSeq> *ip_rfsensor_sim;
-static InPort<TimedDoubleSeq> *ip_lfsensor_sim;
-static InPort<TimedDoubleSeq> *ip_rhsensor_sim;
-static InPort<TimedDoubleSeq> *ip_lhsensor_sim;
+static std::vector<InPort<TimedDoubleSeq>* > ip_forcesensor_sim;
 static InPort<TimedAcceleration3D> *ip_gsensor_sim;
 static InPort<TimedAngularVelocity3D> *ip_gyrometer_sim;
-
-static int rfsensor_id;
-static int lfsensor_id;
-static int rhsensor_id;
-static int lhsensor_id;
 
 static void readGainFile();
 static void loadInitialGain();
@@ -585,39 +574,8 @@ int open_iob(void)
       std::cerr << ", iob_step = " << iob_step << std::endl;
     }
 
-    //* for PD controller *//
-    ip_angleIn    = new InPort<TimedDoubleSeq> ("angleIn", m_angleIn);
-    op_torqueOut  = new OutPort<TimedDoubleSeq> ("torqueOut", m_torqueOut);
-
-    self_ptr->addInPort("angleIn", *ip_angleIn);
-    self_ptr->addOutPort("torqueOut", *op_torqueOut);
-
-    //* pass through port *//
-    ip_qvel_sim     = new InPort<TimedDoubleSeq> ("qvel_sim", m_qvel_sim);
-    ip_torque_sim   = new InPort<TimedDoubleSeq> ("torque_sim", m_torque_sim);
-    ip_rfsensor_sim = new InPort<TimedDoubleSeq> ("rfsensor_sim", m_rfsensor_sim);
-    ip_lfsensor_sim = new InPort<TimedDoubleSeq> ("lfsensor_sim", m_lfsensor_sim);
-    ip_rhsensor_sim = new InPort<TimedDoubleSeq> ("rhsensor_sim", m_rhsensor_sim);
-    ip_lhsensor_sim = new InPort<TimedDoubleSeq> ("lhsensor_sim", m_lhsensor_sim);
-    ip_gsensor_sim   = new InPort<TimedAcceleration3D> ("gsensor_sim", m_gsensor_sim);
-    ip_gyrometer_sim = new InPort<TimedAngularVelocity3D> ("gyrometer_sim", m_gyrometer_sim);
-
-    self_ptr->addInPort("qvel_sim", *ip_qvel_sim);
-    self_ptr->addInPort("torque_sim", *ip_torque_sim);
-    self_ptr->addInPort("rfsensor_sim", *ip_rfsensor_sim);
-    self_ptr->addInPort("lfsensor_sim", *ip_lfsensor_sim);
-    self_ptr->addInPort("rhsensor_sim", *ip_rhsensor_sim);
-    self_ptr->addInPort("lhsensor_sim", *ip_lhsensor_sim);
-    self_ptr->addInPort("gsensor_sim", *ip_gsensor_sim);
-    self_ptr->addInPort("gyrometer_sim", *ip_gyrometer_sim);
-
-    // initial servo and power on
-    for(int i = 0; i < servo.size(); i++) {
-      power[i] = 1;
-      servo[i] = 1;
-    }
-
-    // get sensorId of force sensors
+    // load robot
+    hrp::BodyPtr m_robot;
     {
       RTC::Manager& rtcManager = RTC::Manager::instance();
       std::string nameServer = rtcManager.getConfig()["corba.nameservers"];
@@ -628,31 +586,44 @@ int open_iob(void)
       nameServer = nameServer.substr(0, comPos);
       RTC::CorbaNaming naming(rtcManager.getORB(), nameServer.c_str());
       RTC::Properties& prop = self_ptr->getProperties();
-      hrp::BodyPtr m_robot = hrp::BodyPtr(new hrp::Body());
-      if (!loadBodyFromModelLoader(m_robot, prop["model"].c_str(), 
+      m_robot = hrp::BodyPtr(new hrp::Body());
+      if (!loadBodyFromModelLoader(m_robot, prop["model"].c_str(),
                                    CosNaming::NamingContext::_duplicate(naming.getRootContext())
                                    )){
         std::cerr << "failed to load model[" << prop["model"] << "]" << std::endl;
         return RTC::RTC_ERROR;
       }
+    }
 
-      if (m_robot->sensor<hrp::ForceSensor>("rfsensor") && m_robot->sensor<hrp::ForceSensor>("lfsensor") && m_robot->sensor<hrp::ForceSensor>("rhsensor") && m_robot->sensor<hrp::ForceSensor>("lhsensor") ){
-        rfsensor_id = m_robot->sensor<hrp::ForceSensor>("rfsensor")->id;
-        lfsensor_id = m_robot->sensor<hrp::ForceSensor>("lfsensor")->id;
-        rhsensor_id = m_robot->sensor<hrp::ForceSensor>("rhsensor")->id;
-        lhsensor_id = m_robot->sensor<hrp::ForceSensor>("lhsensor")->id;
-      } else if (m_robot->sensor<hrp::ForceSensor>("rfsensor") && m_robot->sensor<hrp::ForceSensor>("lfsensor") ){
-        rfsensor_id = m_robot->sensor<hrp::ForceSensor>("rfsensor")->id;
-        lfsensor_id = m_robot->sensor<hrp::ForceSensor>("lfsensor")->id;
-        rhsensor_id = 2;
-        lhsensor_id = 3;
-      } else {
-        std::cerr << "could not find rfsensor/lfsensor/rhsensor/lhsensor. use default sensorId" << std::endl;
-        rfsensor_id = 0;
-        lfsensor_id = 1;
-        rhsensor_id = 2;
-        lhsensor_id = 3;
-      }
+    //* for PD controller *//
+    ip_angleIn    = new InPort<TimedDoubleSeq> ("angleIn", m_angleIn);
+    op_torqueOut  = new OutPort<TimedDoubleSeq> ("torqueOut", m_torqueOut);
+
+    self_ptr->addInPort("angleIn", *ip_angleIn);
+    self_ptr->addOutPort("torqueOut", *op_torqueOut);
+
+    //* pass through port *//
+    ip_qvel_sim     = new InPort<TimedDoubleSeq> ("qvel_sim", m_qvel_sim);
+    ip_torque_sim   = new InPort<TimedDoubleSeq> ("torque_sim", m_torque_sim);
+    m_forcesensor_sim.resize(m_robot->numSensors(hrp::Sensor::FORCE));
+    for (unsigned int i=0; i < m_robot->numSensors(hrp::Sensor::FORCE); i++){
+      ip_forcesensor_sim.push_back(new InPort<TimedDoubleSeq> ((m_robot->sensor(hrp::Sensor::FORCE, i)->name + "_sim").c_str(), m_forcesensor_sim[i]));
+    }
+    ip_gsensor_sim   = new InPort<TimedAcceleration3D> ("gsensor_sim", m_gsensor_sim);
+    ip_gyrometer_sim = new InPort<TimedAngularVelocity3D> ("gyrometer_sim", m_gyrometer_sim);
+
+    self_ptr->addInPort("qvel_sim", *ip_qvel_sim);
+    self_ptr->addInPort("torque_sim", *ip_torque_sim);
+    for (unsigned int i=0; i < m_robot->numSensors(hrp::Sensor::FORCE); i++){
+      self_ptr->addInPort((m_robot->sensor(hrp::Sensor::FORCE, i)->name + "_sim").c_str(), *(ip_forcesensor_sim[i]));
+    }
+    self_ptr->addInPort("gsensor_sim", *ip_gsensor_sim);
+    self_ptr->addInPort("gyrometer_sim", *ip_gyrometer_sim);
+
+    // initial servo and power on
+    for(int i = 0; i < servo.size(); i++) {
+      power[i] = 1;
+      servo[i] = 1;
     }
 
     std::cerr << "choreonoid IOB is opened" << std::endl;
@@ -696,39 +667,14 @@ void iob_update(void)
       }
     }
     //* *//
-    if(ip_rfsensor_sim->isNew()) {
-      ip_rfsensor_sim->read();
-      if(number_of_force_sensors() >= 1) {
-        for(int i = 0; i < 6; i++) {
-          //forces[0][i] = m_rfsensor_sim.data[i];
-          force_queue[force_counter][rfsensor_id][i] = m_rfsensor_sim.data[i];
-        }
-      }
-    }
-    if(ip_lfsensor_sim->isNew()) {
-      ip_lfsensor_sim->read();
-      if(number_of_force_sensors() >= 2) {
-        for(int i = 0; i < 6; i++) {
-          //forces[1][i] = m_lfsensor_sim.data[i];
-          force_queue[force_counter][lfsensor_id][i] = m_lfsensor_sim.data[i];
-        }
-      }
-    }
-    if(ip_rhsensor_sim->isNew()) {
-      ip_rhsensor_sim->read();
-      if(number_of_force_sensors() >= 3) {
-        for(int i = 0; i < 6; i++) {
-          //forces[2][i] = m_rhsensor_sim.data[i];
-          force_queue[force_counter][rhsensor_id][i] = m_rhsensor_sim.data[i];
-        }
-      }
-    }
-    if(ip_lhsensor_sim->isNew()) {
-      ip_lhsensor_sim->read();
-      if(number_of_force_sensors() >= 4) {
-        for(int i = 0; i < 6; i++) {
-          //forces[3][i] = m_lhsensor_sim.data[i];
-          force_queue[force_counter][lhsensor_id][i] = m_lhsensor_sim.data[i];
+    for (unsigned int i=0; i < ip_forcesensor_sim.size(); i++) {
+      if(ip_forcesensor_sim[i]->isNew()) {
+        ip_forcesensor_sim[i]->read();
+        if(number_of_force_sensors() > i) {
+          for(int j = 0; j < 6; j++) {
+            //forces[j][i] = ip_forcesensor_sim[j].data[i];
+            force_queue[force_counter][i][j] = m_forcesensor_sim[i].data[j];
+          }
         }
       }
     }
