@@ -774,13 +774,10 @@ void iob_finish(void)
       switch(controlmode[i]){
 #if defined(ROBOT_IOB_VERSION) && ROBOT_IOB_VERSION >= 4
       case JCM_POSITION_TORQUE:
-        // position & torque control
-        ctq = -(q - q_ref) *   Pgain[i] / (tqPgain[i] + 1) - (dq  -  dq_ref) *   Dgain[i] / (tqPgain[i] + 1)
-                +  tq_ref  * tqPgain[i] / (tqPgain[i] + 1) - (dtq - dtq_ref) * tqDgain[i] / (tqPgain[i] + 1);
-        break;
 #endif
       case JCM_TORQUE:
-        ctq = tq_ref * tqPgain[i] - (dtq - dtq_ref) * tqDgain[i];
+        // position & torque control
+        ctq = -(q - q_ref) * Pgain[i] - (dq - dq_ref) * Dgain[i] + tq_ref * tqPgain[i] - (dtq - dtq_ref) * tqDgain[i];
         break;
       case JCM_POSITION:
       default:
