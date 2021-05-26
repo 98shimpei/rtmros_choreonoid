@@ -780,7 +780,7 @@ void iob_finish(void)
         break;
 #endif
       case JCM_TORQUE:
-        ctq = tq_ref;
+        ctq = tq_ref * tqPgain[i] - (dtq - dtq_ref) * tqDgain[i];
         break;
       case JCM_POSITION:
       default:
@@ -917,7 +917,7 @@ static void loadInitialGain()
       write_dgain(i, dgain);
 #if defined(ROBOT_IOB_VERSION) && ROBOT_IOB_VERSION >= 4
       write_torque_pgain(i, tqpgain);
-      write_torque_dgain(i, tqDgain);
+      write_torque_dgain(i, tqdgain);
 #endif
       std::cerr << "joint: " << i;
       std::cerr << ", P: " << pgain;
