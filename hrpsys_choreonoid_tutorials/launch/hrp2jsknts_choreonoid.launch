@@ -14,12 +14,12 @@
     <arg name="VISION_CONNECT_FILE"  default="$(find hrpsys_choreonoid_tutorials)/launch/hrp2jsknts_vision_connect.launch" />
     <arg name="LAUNCH_FOOTCOORDS"    default="$(arg LAUNCH_FOOTCOORDS)" />
     <arg name="ENVIRONMENT_YAML"     value="$(arg ENVIRONMENT_YAML)" />
-    <arg name="CHOREONOID_ROBOT"     value="HRP2JSKNTS"/>
+    <arg name="ROBOT_NAME"           value="HRP2JSKNTS"/>
     <arg name="MODEL_FILE"           value="$(find hrp2_models)/HRP2JSKNTS_WITH_3HAND_for_OpenHRP3/HRP2JSKNTSmain.wrl"/>
     <arg name="COLLADA_FILE"         value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNTS_WH_SENSORS.urdf"/>
     <arg name="CONF_FILE"            value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNTS.conf"/>
     <arg name="HRPSYS_PY_PKG"        value="hrpsys_choreonoid_tutorials"/>
-    <arg name="HRPSYS_PY_NAME"       value="hrp2_rh_setup.py" />
+    <arg name="HRPSYS_PY_NAME"       value="hrp2jsknts_rh_setup.py" />
     <arg name="CONTROLLER_CONFIG"    value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNTS_controller_config.yaml" />
     <arg name="CUSTOMIZER_CONF_FILE" value="$(find hrpsys_choreonoid_tutorials)/config/HRP2JSKNTSCustomizer.yaml" />
     <arg name="USE_SOFTERRORLIMIT" value="true" />

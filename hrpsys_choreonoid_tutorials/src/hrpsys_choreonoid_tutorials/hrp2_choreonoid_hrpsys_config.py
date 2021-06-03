@@ -76,22 +76,3 @@ class JSKHRP2ChoreonoidHrpsysConfigurator(JSKHRP2HrpsysConfigurator):
         self.ic_svc.startImpedanceController("larm")
         self.ic_svc.startImpedanceController("rarm")
         self.startStabilizer()
-
-if __name__ == '__main__':
-    if os.environ["CHOREONOID_ROBOT"] == "HRP2JSKNTS":
-        robot_name = "HRP2JSKNTS"
-    elif os.environ["CHOREONOID_ROBOT"] == "HRP2JSKNT":
-        robot_name = "HRP2JSKNT"
-    elif os.environ["CHOREONOID_ROBOT"] == "HRP2JSK":
-        robot_name = "HRP2JSK"
-    else:
-        robot_name = ""
-    hcf = JSKHRP2ChoreonoidHrpsysConfigurator(robot_name)
-    if len(sys.argv) > 2 :
-        hcf.init(sys.argv[1], sys.argv[2])
-        hcf.startABSTIMP()
-    elif len(sys.argv) > 1 :
-        hcf.init(sys.argv[1])
-        hcf.startABSTIMP()
-    else :
-        hcf.init()

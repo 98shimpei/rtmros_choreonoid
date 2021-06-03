@@ -9,8 +9,8 @@
   <arg name="hrpsys_precreate_rtc" default=""/>
   <arg name="LAUNCH_FOOTCOORDS" default="true" />
 
-  <arg name="CHOREONOID_ROBOT" default="JAXON_RED"/>
-  <env name="CHOREONOID_ROBOT" value="$(arg CHOREONOID_ROBOT)" /> <!-- for JAXONCustomizer and some setup.py -->
+  <arg name="ROBOT_NAME" default="JAXON_RED"/>
+  <env name="CHOREONOID_ROBOT" value="$(arg ROBOT_NAME)" /> <!-- for JAXONCustomizer -->
 
   <arg name="CUSTOMIZER_CONF_FILE" default="" />
   <env name="CUSTOMIZER_CONF_FILE" value="$(arg CUSTOMIZER_CONF_FILE)" if="$(eval bool(arg('CUSTOMIZER_CONF_FILE')))"/> <!-- for JAXONCustomizer -->
@@ -22,8 +22,8 @@
        name="taskname_last" value="LOAD_OBJ_NW" />
   <arg unless="$(arg NO_SCENE)"
        name="taskname_last" value="LOAD_OBJ" />
-  <arg name="PROJECT_FILE" default="$(find hrpsys_choreonoid_tutorials)/config/$(arg CHOREONOID_ROBOT)_$(arg taskname_last).cnoid" />
-  <arg name="SIMULATOR_NAME" default="$(arg CHOREONOID_ROBOT)(Robot)0" />
+  <arg name="PROJECT_FILE" default="$(find hrpsys_choreonoid_tutorials)/config/$(arg ROBOT_NAME)_$(arg taskname_last).cnoid" />
+  <arg name="SIMULATOR_NAME" default="$(arg ROBOT_NAME)(Robot)0" />
   <arg name="BRIDGE_SIMULATOR_NAME" default="RobotHardware_choreonoid0" />
   <arg name="MODEL_FILE"     default="$(find jvrc_models)/JAXON_JVRC/JAXON_JVRCmain_hrpsys.wrl"/>
   <arg name="COLLADA_FILE"   default="$(find hrpsys_choreonoid_tutorials)/models/JAXON_JVRC_SENSORS.urdf"/>
