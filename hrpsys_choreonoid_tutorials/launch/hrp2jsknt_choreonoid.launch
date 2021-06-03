@@ -9,11 +9,11 @@
     <arg name="ENVIRONMENT_YAML"     value="$(arg ENVIRONMENT_YAML)" />
     <arg name="CHOREONOID_ROBOT"     value="HRP2JSKNT"/>
     <arg name="MODEL_FILE"           value="$(find hrp2_models)/HRP2JSKNT_WITH_3HAND_for_OpenHRP3/HRP2JSKNTmain.wrl"/>
-    <arg name="COLLADA_FILE"         value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNT_WITH_3HAND_SENSORS.urdf"/>
-    <arg name="CONF_FILE"            value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNT_WITH_3HAND.conf"/>
+    <arg name="COLLADA_FILE"         value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNT_WH_SENSORS.urdf"/>
+    <arg name="CONF_FILE"            value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNT.conf"/>
     <arg name="HRPSYS_PY_PKG"        value="hrpsys_choreonoid_tutorials"/>
     <arg name="HRPSYS_PY_NAME"       value="hrp2_rh_setup.py" />
-    <arg name="CONTROLLER_CONFIG"    value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNT_WITH_3HAND_controller_config.yaml" />
+    <arg name="CONTROLLER_CONFIG"    value="$(find hrpsys_ros_bridge_tutorials)/models/HRP2JSKNT_controller_config.yaml" />
     <arg name="CUSTOMIZER_CONF_FILE" value="$(find hrpsys_choreonoid_tutorials)/config/HRP2JSKNTCustomizer.yaml" />
   </include>
 
