@@ -341,9 +341,6 @@ int write_control_mode(int id, joint_control_mode s)
     if(s == JCM_POSITION_TORQUE){
       isPosTq[id] = true;
     }
-    if(s == JCM_TORQUE){
-      isPosTq[id] = true;
-    }
 #endif
     return TRUE;
 }
