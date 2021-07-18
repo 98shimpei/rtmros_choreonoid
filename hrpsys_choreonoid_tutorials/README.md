@@ -1,19 +1,23 @@
 
 ## **how to use**
 ### **JAXON environments**
-simplest version:
+simplest version: (JAXON_RED_RH_FLAT.cnoid)
 ```
-$ rtmlaunch hrpsys_choreonoid_tutorials jaxon_red_choreonoid.launch
+$ rtmlaunch hrpsys_choreonoid_tutorials jaxon_jvrc_choreonoid.launch
 ```
-DRCBOX & vision:
+
+DRCBOX: (JAXON_RED_DRCBOX.cnoid)
 ```
-$ rtmlaunch hrpsys_choreonoid_tutorials jaxon_red_choreonoid.launch TASK:=DRCBOX
-$ roslaunch hrpsys_choreonoid_tutorials jaxon_multisense_local.launch
+$ rtmlaunch hrpsys_choreonoid_tutorials jaxon_jvrc_choreonoid.launch USE_ROBOTHARDWARE:=false TASK:=DRCBOX
 ```
-add VRML objects using yaml:
+
+add VRML objects using yaml: (JAXON_RED_RH_LOAD_OBJ.cnoid)
 ```
-rtmlaunch hrpsys_choreonoid_tutorials jaxon_red_choreonoid.launch LOAD_OBJECTS:=true ENVIRONMENT_YAML:=$(rospack find hrpsys_choreonoid_tutorials)/config/simple_step.yaml
+$ rtmlaunch hrpsys_choreonoid_tutorials jaxon_jvrc_choreonoid.launch LOAD_OBJECTS:=true ENVIRONMENT_YAML:=$(rospack find hrpsys_choreonoid_tutorials)/config/simple_step.yaml
 ```
+
+If simulatitors often end abnormaly, the stand-alone roscore may solve the problem (Please launch the roscore before rtmlaunch command.).
+This enables you to reuse a single '*ri*' in simurations and to skip '(jaxon_red-init)'.
 
 シミュレーションが頻繁に突然終了する時には，roscoreを別で立ち上げておくと改善される場合がある．
 また，roscoreを立ち上げておくと，毎回シミュレーションを立ち上げなおしてもroseusにおいて`*ri*`を保持することができ，angle-vectorなどを使うために`(jaxon_red-init)`などし直す必要がない．

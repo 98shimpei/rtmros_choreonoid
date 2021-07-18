@@ -1,0 +1,25 @@
+- git:
+    local-name: openhrp3
+    uri: https://github.com/fkanehiro/openhrp3.git
+- git:
+    local-name: hrpsys
+    uri: https://github.com/fkanehiro/hrpsys-base.git
+- git:
+    local-name: rtm-ros-robotics/rtmros_common
+    uri: https://github.com/start-jsk/rtmros_common.git
+- git:
+    local-name: rtm-ros-robotics/rtmros_tutorials
+    uri: https://github.com/start-jsk/rtmros_tutorials.git
+- git:
+    local-name: rtm-ros-robotics/rtmros_choreonoid
+    uri: https://github.com/start-jsk/rtmros_choreonoid.git
+- git:
+    local-name: jsk-ros-pkg/jsk_control
+    uri: https://github.com/jsk-ros-pkg/jsk_control.git
+- git:
+    local-name: choreonoid
+    uri: https://github.com/choreonoid/choreonoid.git
+    version: release-1.7
+- git:
+    local-name: jsk-ros-pkg/jsk_robot
+    uri: https://github.com/jsk-ros-pkg/jsk_robot.git

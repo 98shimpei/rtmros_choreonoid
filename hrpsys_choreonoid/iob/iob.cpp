@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include "iob.h"
 
 #include <stdio.h>
 
@@ -13,16 +14,8 @@
 #include <rtm/DataInPort.h>
 #include <rtm/DataOutPort.h>
 #include <rtm/idl/BasicDataTypeSkel.h>
-#include <hrpModel/ModelLoaderUtil.h>
-#include <hrpModel/Sensor.h>
-#include <rtm/idl/BasicDataType.hh>
-#include <rtm/idl/ExtendedDataTypes.hh>
 
-#if defined IOB_NAMESPACE
-namespace IOB_NAMESPACE {
-#endif
-
-#include "iob.h"
+#include "RobotHardware_choreonoid.h"
 
 static std::vector<double> command;
 static std::vector<double> act_angle;
@@ -42,7 +35,9 @@ static bool isLocked = false;
 static int frame = 0;
 static timespec g_ts;
 static long g_period_ns=5000000;
-static std::vector<bool> isPosTq;
+static std::vector<joint_control_mode> controlmode;
+
+Time iob_time;
 
 #define FORCE_AVERAGE 8
 #define TORQUE_AVERAGE 2
@@ -60,9 +55,7 @@ static std::vector<std::vector<double> > torque_queue;
 
 using namespace RTC;
 
-Time iob_time;
-
-RTC::DataFlowComponentBase *self_ptr;
+RobotHardware_choreonoid *self_ptr;
 
 //* *//
 static TimedDoubleSeq m_angleIn;
@@ -89,12 +82,8 @@ static InPort<TimedDoubleSeq> *ip_lhsensor_sim;
 static InPort<TimedAcceleration3D> *ip_gsensor_sim;
 static InPort<TimedAngularVelocity3D> *ip_gyrometer_sim;
 
-static int rfsensor_id;
-static int lfsensor_id;
-static int rhsensor_id;
-static int lhsensor_id;
-
 static void readGainFile();
+static void loadInitialGain();
 
 static double dt;
 static std::ifstream gain;
@@ -105,7 +94,6 @@ static std::vector<double> Pgain_orig, Dgain_orig;
 static std::vector<double> tlimit;
 static size_t dof, loop;
 static unsigned int m_debugLevel;
-static bool initial_p=true;
 
 static int iob_step;
 static int iob_nstep;
@@ -183,11 +171,11 @@ int set_number_of_joints(int num)
     act_vel.resize(num);
     power.resize(num);
     servo.resize(num);
-    isPosTq.resize(num);
+    controlmode.resize(num);
 
     for (int i=0; i<num; i++){
         command[i] = com_torque[i] = power[i] = servo[i] = 0;
-        isPosTq[i] = false;
+        controlmode[i] = JCM_POSITION;
     }
 
     torque_counter = 0;
@@ -195,23 +183,6 @@ int set_number_of_joints(int num)
     for (int j = 0; j < TORQUE_AVERAGE; j++) {
       torque_queue[j].resize(num);
     }
-
-    dof = num;
-    m_torqueOut.data.length(dof);
-    m_angleIn.data.length(dof);
-    qold.resize(dof);
-    qold_ref.resize(dof);
-    tqold.resize(dof);
-    tqold_ref.resize(dof);
-    Pgain.resize(dof);
-    Dgain.resize(dof);
-    tqPgain.resize(dof);
-    tqDgain.resize(dof);
-    initial_Pgain.resize(dof);
-    initial_Dgain.resize(dof);
-    initial_tqPgain.resize(dof);
-    initial_tqDgain.resize(dof);
-
     return TRUE;
 }
 
@@ -321,27 +292,14 @@ int read_servo_alarm(int id, int *a)
 int read_control_mode(int id, joint_control_mode *s)
 {
     CHECK_JOINT_ID(id);
-    if(isPosTq[id]){
-#if defined(ROBOT_IOB_VERSION) && ROBOT_IOB_VERSION >= 4
-      *s = JCM_POSITION_TORQUE;
-#endif
-    }else{
-      *s = JCM_POSITION;
-    }
+    *s = controlmode[id];
     return TRUE;
 }
 
 int write_control_mode(int id, joint_control_mode s)
 {
     CHECK_JOINT_ID(id);
-    if(s == JCM_POSITION){
-      isPosTq[id] = false;
-    }
-#if defined(ROBOT_IOB_VERSION) && ROBOT_IOB_VERSION >= 4
-    if(s == JCM_POSITION_TORQUE){
-      isPosTq[id] = true;
-    }
-#endif
+    controlmode[id] = s;
     return TRUE;
 }
 
@@ -602,7 +560,7 @@ int open_iob(void)
         com_torque[i] = 0.0;
         power[i] = OFF;
         servo[i] = OFF;
-        isPosTq[i] = false;
+        controlmode[i] = JCM_POSITION;
     }
     clock_gettime(CLOCK_MONOTONIC, &g_ts);
 
@@ -652,46 +610,6 @@ int open_iob(void)
       servo[i] = 1;
     }
 
-    // get sensorId of force sensors
-    {
-      RTC::Manager& rtcManager = RTC::Manager::instance();
-      std::string nameServer = rtcManager.getConfig()["corba.nameservers"];
-      int comPos = nameServer.find(",");
-      if (comPos < 0){
-        comPos = nameServer.length();
-      }
-      nameServer = nameServer.substr(0, comPos);
-      RTC::CorbaNaming naming(rtcManager.getORB(), nameServer.c_str());
-      RTC::Properties& prop = self_ptr->getProperties();
-      hrp::BodyPtr m_robot = hrp::BodyPtr(new hrp::Body());
-      if (!loadBodyFromModelLoader(m_robot, prop["model"].c_str(), 
-                                   CosNaming::NamingContext::_duplicate(naming.getRootContext())
-                                   )){
-        std::cerr << "failed to load model[" << prop["model"] << "]" << std::endl;
-        return RTC::RTC_ERROR;
-      }
-
-      if (m_robot->sensor<hrp::ForceSensor>("rfsensor") && m_robot->sensor<hrp::ForceSensor>("lfsensor") && m_robot->sensor<hrp::ForceSensor>("rhsensor") && m_robot->sensor<hrp::ForceSensor>("lhsensor") ){
-        rfsensor_id = m_robot->sensor<hrp::ForceSensor>("rfsensor")->id;
-        lfsensor_id = m_robot->sensor<hrp::ForceSensor>("lfsensor")->id;
-        rhsensor_id = m_robot->sensor<hrp::ForceSensor>("rhsensor")->id;
-        lhsensor_id = m_robot->sensor<hrp::ForceSensor>("lhsensor")->id;
-      } else if (m_robot->sensor<hrp::ForceSensor>("rfsensor") && m_robot->sensor<hrp::ForceSensor>("lfsensor") ){
-        rfsensor_id = m_robot->sensor<hrp::ForceSensor>("rfsensor")->id;
-        lfsensor_id = m_robot->sensor<hrp::ForceSensor>("lfsensor")->id;
-        rhsensor_id = 2;
-        lhsensor_id = 3;
-      } else {
-        std::cerr << "could not find rfsensor/lfsensor/rhsensor/lhsensor. use default sensorId" << std::endl;
-        rfsensor_id = 0;
-        lfsensor_id = 1;
-        rhsensor_id = 2;
-        lhsensor_id = 3;
-      }
-    }
-
-    readGainFile();
-
     std::cerr << "choreonoid IOB is opened" << std::endl;
     return TRUE;
 }
@@ -703,18 +621,11 @@ void iob_update(void)
 {
     if(ip_angleIn->isNew()) {
       ip_angleIn->read();
-      if (initial_p){
-        if (dof != m_angleIn.data.length()) {
-          dof = m_angleIn.data.length();
-          m_torqueOut.data.length(dof);
-          readGainFile();
-        }
-        // initialize angleRef, old_ref and old with angle
-        for(int i = 0; i < dof; ++i) {
-          command[i] = qold_ref[i] = qold[i] = m_angleIn.data[i];
-          com_torque[i] = tqold_ref[i] = tqold[i] = 0/*act_torque[i]*/;
-        }
-        initial_p = false;
+      if (dof == 0) {
+        dof = m_angleIn.data.length();
+        m_torqueOut.data.length(dof);
+        readGainFile();
+        loadInitialGain();
       }
       for(int i = 0; i < m_angleIn.data.length() && i < dof; i++) {
         act_angle[i] = m_angleIn.data[i];
@@ -745,7 +656,7 @@ void iob_update(void)
       if(number_of_force_sensors() >= 1) {
         for(int i = 0; i < 6; i++) {
           //forces[0][i] = m_rfsensor_sim.data[i];
-          force_queue[force_counter][rfsensor_id][i] = m_rfsensor_sim.data[i];
+          force_queue[force_counter][0][i] = m_rfsensor_sim.data[i];
         }
       }
     }
@@ -754,7 +665,7 @@ void iob_update(void)
       if(number_of_force_sensors() >= 2) {
         for(int i = 0; i < 6; i++) {
           //forces[1][i] = m_lfsensor_sim.data[i];
-          force_queue[force_counter][lfsensor_id][i] = m_lfsensor_sim.data[i];
+          force_queue[force_counter][1][i] = m_lfsensor_sim.data[i];
         }
       }
     }
@@ -763,7 +674,7 @@ void iob_update(void)
       if(number_of_force_sensors() >= 3) {
         for(int i = 0; i < 6; i++) {
           //forces[2][i] = m_rhsensor_sim.data[i];
-          force_queue[force_counter][rhsensor_id][i] = m_rhsensor_sim.data[i];
+          force_queue[force_counter][2][i] = m_rhsensor_sim.data[i];
         }
       }
     }
@@ -772,7 +683,7 @@ void iob_update(void)
       if(number_of_force_sensors() >= 4) {
         for(int i = 0; i < 6; i++) {
           //forces[3][i] = m_lhsensor_sim.data[i];
-          force_queue[force_counter][lhsensor_id][i] = m_lhsensor_sim.data[i];
+          force_queue[force_counter][3][i] = m_lhsensor_sim.data[i];
         }
       }
     }
@@ -860,13 +771,18 @@ void iob_finish(void)
       tqold_ref[i] = tq_ref;
 
       double ctq;
-      if(isPosTq[i]){
+      switch(controlmode[i]){
+#if defined(ROBOT_IOB_VERSION) && ROBOT_IOB_VERSION >= 4
+      case JCM_POSITION_TORQUE:
+#endif
+      case JCM_TORQUE:
         // position & torque control
-        //ctq = -(q - q_ref) * Pgain[i] - (dq - dq_ref) * Dgain[i] - (tq - tq_ref) * tqPgain[i] - (dtq - dtq_ref) * tqDgain[i];
-        ctq = -(q - q_ref) *   Pgain[i] / (tqPgain[i] + 1) - (dq  -  dq_ref) *   Dgain[i] / (tqPgain[i] + 1)
-                +  tq_ref  * tqPgain[i] / (tqPgain[i] + 1) - (dtq - dtq_ref) * tqDgain[i] / (tqPgain[i] + 1);
-      } else {
+        ctq = -(q - q_ref) * Pgain[i] - (dq - dq_ref) * Dgain[i] + tq_ref * tqPgain[i] - (dtq - dtq_ref) * tqDgain[i];
+        break;
+      case JCM_POSITION:
+      default:
         ctq = -(q - q_ref) * Pgain[i] - (dq - dq_ref) * Dgain[i]; // simple PD control
+        break;
       }
 
       m_torqueOut.data[i] = std::max(std::min(ctq, tlimit[i]), -tlimit[i]);
@@ -950,7 +866,71 @@ static void readGainFile()
     } else {
       std::cerr << "[iob] Gain file [" << gain_fname << "] not opened" << std::endl;
     }
+    // initialize angleRef, old_ref and old with angle
+    for(int i = 0; i < dof; ++i) {
+      command[i] = qold_ref[i] = qold[i] = m_angleIn.data[i];
+      com_torque[i] = tqold_ref[i] = tqold[i] = 0/*act_torque[i]*/;
+    }
 }
+
+static void loadInitialGain()
+{
+  std::string initialgain_fname;
+  RTC::Properties& prop = self_ptr->getProperties();
+  coil::stringTo(initialgain_fname, prop["pdgains.file_name"].c_str());
+  std::ifstream strm(initialgain_fname.c_str());
+  if (strm.is_open()) {
+    std::cerr << "[iob] Initial Gain file [" << initialgain_fname << "] opened" << std::endl;
+    int i = 0;
+    for (; i < dof; i++) {
+      double pgain=0, dgain=0, tqpgain=0, tqdgain=0, tmp;
+    retry:
+      {
+        std::string str;
+        if (std::getline(strm, str)) {
+          if (str.empty())   goto retry;
+          if (str[0] == '#') goto retry;
+
+          std::istringstream sstrm(str);
+          sstrm >> pgain;
+          if(sstrm.eof()) goto next;
+          sstrm >> tmp;
+          if(sstrm.eof()) goto next;
+          sstrm >> dgain;
+          if(sstrm.eof()) goto next;
+          sstrm >> tqpgain;
+          if(sstrm.eof()) goto next;
+          sstrm >> tmp;
+          if(sstrm.eof()) goto next;
+          sstrm >> tqdgain;
+        } else {
+          i--;
+          break;
+        }
+      }
+
+    next:
+      write_pgain(i, pgain);
+      write_dgain(i, dgain);
+#if defined(ROBOT_IOB_VERSION) && ROBOT_IOB_VERSION >= 4
+      write_torque_pgain(i, tqpgain);
+      write_torque_dgain(i, tqdgain);
+#endif
+      std::cerr << "joint: " << i;
+      std::cerr << ", P: " << pgain;
+      std::cerr << ", D: " << dgain;
+      std::cerr << ", tqP: " << tqpgain;
+      std::cerr << ", tqD: " << tqdgain << std::endl;
+    }
+    strm.close();
+    if (i != dof) {
+      std::cerr << "[iob] Initial Gain file [" << initialgain_fname << "] does not contain gains for all joints" << std::endl;
+    }
+  } else {
+    std::cerr << "[iob] Initial Gain file [" << initialgain_fname << "] not opened" << std::endl;
+  }
+}
+
 
 int close_iob(void)
 {
@@ -1318,6 +1298,4 @@ int read_digital_output(char *doutput)
     return FALSE;
 }
 
-#if defined IOB_NAMESPACE
-}
-#endif
+

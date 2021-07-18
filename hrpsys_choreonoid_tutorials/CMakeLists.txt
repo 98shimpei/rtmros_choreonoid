@@ -27,22 +27,6 @@ else()
   set (JSK_MODELS_DIR ${jsk_models_SOURCE_PREFIX})
 endif()
 
-find_package(hrp2_models QUIET)
-if(NOT "${hrp2_models_FOUND}")
-  string(ASCII 27 Esc)
-  message(WARNING "${Esc}[1;33mPackage hrp2_models is not found, if you have right to access them please include source code in catkin workspace${Esc}[m")
-else()
-  set (HRP2_MODELS_DIR ${hrp2_models_SOURCE_PREFIX})
-endif()
-
-find_package(jsk_hrp2_ros_bridge QUIET)
-if(NOT "${jsk_hrp2_ros_bridge_FOUND}")
-  string(ASCII 27 Esc)
-  message(WARNING "${Esc}[1;33mPackage jsk_hrp2_ros_bridge is not found, if you have right to access them please include source code in catkin workspace${Esc}[m")
-else()
-  set (JSK_HRP2_ROS_BRIDGE_DIR ${jsk_hrp2_ros_bridge_SOURCE_PREFIX})
-endif()
-
 ################################
 ## compile_openhrp_model
 ##  Generate OpenHRP3 .xml and .conf file.
@@ -179,15 +163,7 @@ set(JVRC_RTC_DIRECTORY ${hrpsys_choreonoid_SOURCE_PREFIX})
 set(JVRC_CONF_DIRECTORY ${PROJECT_SOURCE_DIR}/config)
 
 ###
-#SampleRobot conid
-###
-if (${hrp2_models_FOUND})
-configure_file(${PROJECT_SOURCE_DIR}/config/SampleRobot_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/SampleRobot_LOAD_OBJ.cnoid @ONLY)
-endif()
-configure_file(${PROJECT_SOURCE_DIR}/launch/samplerobot_choreonoid.launch.in ${PROJECT_SOURCE_DIR}/launch/samplerobot_choreonoid.launch @ONLY) #OPENHRP_SAMPLE_DIR is difficult to find in roslaunch api
-
-###
-#JAXON_RED conid
+#JAXON_RED cnoid
 ###
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_FLAT.cnoid @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_VALVE.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_VALVE.cnoid @ONLY)
@@ -196,44 +172,32 @@ configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_DOOR.cnoid.in ${PROJECT_SO
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_RH_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_RH_FLAT.cnoid @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_LOAD_OBJ.cnoid @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_LOAD_OBJ_NW.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_LOAD_OBJ_NW.cnoid @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_RH_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_RH_LOAD_OBJ.cnoid @ONLY)
 
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_TUTORIALS.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_TUTORIALS.cnoid @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_HILLS.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_HILLS.cnoid @ONLY)
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_RED_STEPS.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_RED_STEPS.cnoid @ONLY)
 
 ###
-#JAXON_BLUE conid
+#JAXON_BLUE cnoid
 ###
 if (${jsk_models_FOUND})
 configure_file(${PROJECT_SOURCE_DIR}/config/JAXON_BLUE_RH_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/JAXON_BLUE_RH_FLAT.cnoid @ONLY)
 endif()
 
 ###
-#CHIDORI conid
+#CHIDORI cnoid
 ###
 if (${jsk_models_FOUND})
 configure_file(${PROJECT_SOURCE_DIR}/config/CHIDORI_RH_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/CHIDORI_RH_FLAT.cnoid @ONLY)
 endif()
 
 ###
-#HRP2JSK conid
+#TABLIS cnoid
 ###
-if (${hrp2_models_FOUND})
-configure_file(${PROJECT_SOURCE_DIR}/config/HRP2JSK_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/HRP2JSK_LOAD_OBJ.cnoid @ONLY)
-endif()
-
-###
-#HRP2JSKNT conid
-###
-if (${hrp2_models_FOUND})
-configure_file(${PROJECT_SOURCE_DIR}/config/HRP2JSKNT_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/HRP2JSKNT_LOAD_OBJ.cnoid @ONLY)
-endif()
-
-###
-#HRP2JSKNTS conid
-###
-if (${hrp2_models_FOUND})
-configure_file(${PROJECT_SOURCE_DIR}/config/HRP2JSKNTS_LOAD_OBJ.cnoid.in ${PROJECT_SOURCE_DIR}/config/HRP2JSKNTS_LOAD_OBJ.cnoid @ONLY)
+if (${jsk_models_FOUND})
+configure_file(${PROJECT_SOURCE_DIR}/config/TABLIS_RH_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/TABLIS_RH_FLAT.cnoid @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/config/TABLIS_BASE_RH_FLAT.cnoid.in ${PROJECT_SOURCE_DIR}/config/TABLIS_BASE_RH_FLAT.cnoid @ONLY)
 endif()
 
 ###
