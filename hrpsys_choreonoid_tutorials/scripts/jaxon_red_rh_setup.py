@@ -55,6 +55,8 @@ class JAXON_RED_HrpsysConfigurator(ChoreonoidHrpsysConfigurator):
         self.ic_svc.startImpedanceController("larm")
         self.ic_svc.startImpedanceController("rarm")
         self.startStabilizer()
+        self.rh_svc.setServoErrorLimit("all",   0.0)
+        self.el_svc.setServoErrorLimit("all",   sys.float_info.max)
 
 if __name__ == '__main__':
     hcf = JAXON_RED_HrpsysConfigurator("JAXON_RED")

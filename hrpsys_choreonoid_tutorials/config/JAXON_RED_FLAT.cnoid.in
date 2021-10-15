@@ -173,6 +173,11 @@ items:
                 depthError: 0
                 enableHeadLight: true
                 enableAdditionalLights: true
+        -
+          id: 10
+          name: "SimulatorWorldReset"
+          plugin: ROSExt
+          class: SimulatorWorldResetItem
     -
       id: 9
       name: "ros_service_server.py"
