@@ -60,6 +60,35 @@ items:
                 AutoConnect: false
                 InstanceName: JAXON_RED(Robot)0
                 bodyPeriodicRate: 0.002
+            -
+              id: 20
+              name: "DepthCameraPublisher"
+              plugin: ROSExt
+              class: DepthCameraPublisherItem
+              data:
+                cameraName: rs_l515_depth_optical_frame
+                publishColor: false
+                depthImageTopicName: rs_l515/depth/image_rect_raw
+                depthCameraInfoTopicName: rs_l515/depth/camera_info
+                pointCloudTopicName: rs_l515/depth_registered/points
+            -
+              id: 21
+              name: "CameraPublisher"
+              plugin: ROSExt
+              class: CameraPublisherItem
+              data:
+                cameraName: rs_l515_color_optical_frame
+                imageTopicName: rs_l515/color/image_rect_color
+                cameraInfoTopicName: rs_l515/color/camera_info
+            -
+              id: 22
+              name: "OdometryPublisher"
+              plugin: ROSExt
+              class: OdometryPublisherItem
+              data:
+                targetName: rs_t265
+                odometryTopicName: rs_t265/odom/sample
+                childFrameId: rs_t265_link
         - 
           id: 4
           name: "AISTSimulator"
@@ -149,6 +178,48 @@ items:
                 depthError: 0
                 enableHeadLight: true
                 enableAdditionalLights: true
+            -
+              id: 23
+              name: "GLVisionSimulator"
+              plugin: Body
+              class: GLVisionSimulatorItem
+              data:
+                enabled: true
+                targetBodies: [ JAXON_RED ]
+                targetSensors: [ rs_l515_color_optical_frame ]
+                maxFrameRate: 1000
+                maxLatency: 1
+                recordVisionData: false
+                useThread: true
+                useThreadsForSensors: true
+                threadMode: Sensor
+                bestEffort: true
+                allSceneObjects: false
+                rangeSensorPrecisionRatio: 2
+                depthError: 0
+                enableHeadLight: true
+                enableAdditionalLights: true
+            -
+              id: 24
+              name: "GLVisionSimulator"
+              plugin: Body
+              class: GLVisionSimulatorItem
+              data:
+                enabled: true
+                targetBodies: [ JAXON_RED ]
+                targetSensors: [ rs_l515_depth_optical_frame ]
+                maxFrameRate: 1000
+                maxLatency: 1
+                recordVisionData: false
+                useThread: true
+                useThreadsForSensors: true
+                threadMode: Sensor
+                bestEffort: true
+                allSceneObjects: false
+                rangeSensorPrecisionRatio: 2
+                depthError: 0
+                enableHeadLight: true
+                enableAdditionalLights: true
     - 
       id: 8
       name: "add_objects.py"
@@ -187,7 +258,7 @@ views:
     mounted: true
     state: 
       selected: [ 9 ]
-      checked: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ]
+      checked: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24]
       expanded: [ 1 ]
   - 
     id: 3
