@@ -97,7 +97,7 @@
 
 
 
-  <arg name="launch_multisense_local" default="true" />
+  <arg name="launch_multisense_local" default="false" />
   <arg name="launch_multisense_remote" default="false" />
   <include if="$(arg launch_multisense_local)"
            file="$(find jaxon_ros_bridge)/launch/jaxon_multisense_local.launch" />
